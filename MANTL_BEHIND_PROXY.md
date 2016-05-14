@@ -1,3 +1,7 @@
+Many enterprise environments leverage Internet Proxy Servers protecting and optimizing traffic from a corporate network to the outside world.  While there are plenty of benefits to these services, they often make deploying software and solutions difficult.
+
+Deploying [Mantl.io](http://www.github.com/CiscoCloud/mantl) requires access to the internet to access code repositories, container registraties and download locations.  The access is needed by several components, and several differnet times in installation and configuration.  I have compiled this list of steps needed to successfully deploy Mantl behind a corporate proxy server.  Likely this list is incomplete, however I'll be updating as I find new chnages that are required for successful deployment.
+
 #Preparing your Template for Proxy Server Use
 
 These steps will prepare your CentOS Template for if a Proxy server is needed in the lab.  In this section, as well as in later areas in these instructions referring to proxy settings, you may need to add additional domains to your "no_proxy" list.  If there are local resources (i.e. docker registries, code repositories, etc) that do NOT go through proxy hosted on a domain, add the needed entries to the no_proxy list.  For example, within Cisco Labs, we often need to include ".cisco.com" in the no_proxy list.
@@ -58,7 +62,7 @@ With Ansible 1.9.4 there is a bug in some of the modules not respecting the prox
 
 * Collectd Setup
   * `vim roles/collectd/tasks/main.yml`
-  * Add an environment section directly under "- name:  install collectd docker plugin dependencies" so that it looks like this
+  * Add an environment section directly under `"- name:  install collectd docker plugin dependencies"` so that it looks like this
 
 ```
 - name:  install collectd docker plugin dependencies
