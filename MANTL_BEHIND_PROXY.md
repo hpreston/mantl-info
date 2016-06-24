@@ -111,3 +111,57 @@ Here is an excerpt from that file on my deployment.
     - elk
 ```
 
+# Cassandra Framework
+The Cassandra framework for Mesos provides a very easy way to get a highly available DB up and running quickly and easily.
+
+The mantl-api is used to add frameworks to Marathon, including the Cassandra one.  Part of the steps to install the framework requires pulling packages down from the internet, and if you are behind a proxy, this won't work with a basic installation.  Here are steps to get a successful Cassandra up and running.
+
+## General Info
+* Download and host the needed files on your build server, or somewhere that doesn't require a proxy to access
+* Deploy Cassandra using Mantl-API
+* Update Marathon Definition to pull the files from your local source
+
+## Walkthrough
+This walkthrough will get you up and running from a CentOS7 based build server that is inside the lab with your Mantl Cluster.
+
+```
+# if not done, install httpd to host the local downloads
+sudo yum install httpd
+sudo systemctl start httpd
+
+# update firewalld to allow httpd through
+sudo firewall-cmd --zone=public --permanent --add-service=http
+
+# verify rule was installed
+sudo firewall-cmd --zone=public --permanent --list-services
+
+# download the needed files for cassandra
+wget https://downloads.mesosphere.com/java/jre-7u76-linux-x64.tar.gz
+wget https://downloads.mesosphere.com/cassandra-mesos/artifacts/0.2.0-1/cassandra-mesos-0.2.0-1.tar.gz
+
+# copy files to local httpd directory
+sudo cp jre-7u76-linux-x64.tar.gz /var/www/html/
+sudo cp cassandra-mesos-0.2.0-1.tar.gz /var/www/html/
+
+# Setup session environment variables for the installation
+# Update these for your environment
+export MANTL_USER=admin
+export MANTL_PASSWORD=Password
+export MANTL_CONTROL=control.mantl.domain.intra
+# provide the IP address where you are hosting the downloaded files
+export MANTL_BUILD=10.10.10.10
+
+# Use Mantl API to install the Cassandra Framework
+curl -kX POST -u $MANTL_USER:$MANTL_PASSWORD -d "{\"name\": \"cassandra\"}" https://$MANTL_CONTROL/api/1/install
+
+# Use Marathon API to update the URIs in the App Config
+curl -kX PUT -u $MANTL_USER:$MANTL_PASSWORD -H "Content-type: application/json" https://$MANTL_CONTROL:8080/v2/apps/cassandra/mantl?force=true -d "{\"uris\":[\"http://$MANTL_BUILD/cassandra-mesos-0.2.0-1.tar.gz\",\"http://$MANTL_BUILD/jre-7u76-linux-x64.tar.gz\"]}"
+
+# Get the current config of Marathon, look in the URIs field to make sure pointing at the BUILD server
+curl -kX GET -u $MANTL_USER:$MANTL_PASSWORD -H "Content-type: application/json" https://$MANTL_CONTROL:8080/v2/apps/cassandra/mantl | python -m json.tool
+
+# If desired, to remove the cassandra framework
+curl -kX DELETE -u $MANTL_USER:$MANTL_PASSWORD  -d "{\"name\": \"cassandra\"}" https://$MANTL_CONTROL/api/1/install | python -m json.tool
+
+```
+
