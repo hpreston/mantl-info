@@ -91,7 +91,7 @@ You are adding the same 3 environment variables and values that you've added in 
 * https_proxy
 * no_proxy
 
-**One potential difference from your standard "no_proxy" list, is you will need to add ".consul" to the list to allow "mantl-api" to communicate with the different APIs in Mantl.**
+**One potential difference from your standard "no_proxy" list, is you will need to add ".consul" to the list to allow "mantl-api" to communicate with the different APIs in Mantl.  You'll also need to add entries for each of your control nodes. If you are using "mantl" as the short name in your terraform file, you will add this list to the no_proxy lists: ".consul,mantl-control-01,mantl-control-02,mantl-control-03"**
 
 # ELK Stack Add-on
 The ELK Stack Add-On (Elastisearch, Kibana, Logstash) is a popular method for logging and analytics in the cluster.  In order to successfully deploy, you will need to edit one of the ansible role definitions.
